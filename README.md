@@ -384,12 +384,12 @@ Analytics
 ### Local Development Setup
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd student-evaluation-system
+git clone https://github.com/mihir0209/TestAnalysis.git
+cd TestAnalysis
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -443,17 +443,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Team
 
-- **Project Lead**: [Your Name]
-- **Backend Developer**: [Team Member]
-- **Frontend Developer**: [Team Member]
-- **Data Scientist**: [Team Member]
+- **Project Lead**: MiHiR 
+- **Backend Developer**: Also MiHiR
+- **Frontend Developer**: Yupp, MiHiR again
+- **Data Scientist**: Okay, kidding!! MiHiR again.
 
 ## 📞 Support
 
 For support and questions:
-- Email: support@student-evaluation.com
-- Documentation: [Link to docs]
-- Issues: [GitHub Issues Link]
+- Email: Nope
+- Documentation: Hehe
+- Issues: Issues bahut hote hain janab project mai, sudhaar koi nahi laata.
 
 ---
 

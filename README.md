@@ -81,7 +81,27 @@ The system creates a **room-based evaluation environment** (similar to gaming lo
 
 ## 🏛️ Core Features
 
-### 1. **Room Management System**
+### 1. **Enhanced Authentication System**
+
+#### Student Registration
+- **Pre-registered student IDs** system (managed by teachers)
+- **Year-based ID format** (FY-1234, SY-5678, TY-9012, LY-3456)
+- **Automatic validation** of student IDs against pre-registered list
+- **Approval workflow** for unauthorized access attempts
+- **Password self-setting** by students during registration
+
+#### Teacher Management
+- **Subject-based organization** of students and courses
+- **Course archiving** system for semester changes
+- **Bulk student registration** capabilities
+- **Approval management** for student requests
+
+#### Separate Dashboards
+- **Student dashboard**: Clean, focused on test-taking and analytics
+- **Teacher dashboard**: Comprehensive management and monitoring tools
+- **Different login pages** for role-specific access
+
+### 2. **Room Management System**
 
 #### Room Creation
 - Teachers create test rooms with unique invite codes
@@ -99,7 +119,28 @@ The system creates a **room-based evaluation environment** (similar to gaming lo
 - **Penalty system** for late entries (configurable)
 - **Room capacity management**
 
-### 2. **Test Configuration System**
+### 3. **Embedded Analytics System**
+
+#### Embeddable Widgets
+- **Multiple template types**: Student performance, test results, live analytics
+- **Password-protected embeds** for secure access
+- **Auto-updating content** for real-time data
+- **Customizable display settings**
+
+#### Integration Features
+- **HTML embed codes** for easy integration
+- **Google Classroom compatibility**
+- **LMS integration** support
+- **Responsive design** for various platforms
+
+#### Analytics Templates
+- **Student Performance**: Individual and class-wide metrics
+- **Test Performance**: Question-wise analysis
+- **Live Results**: Real-time test progress
+- **Class Overview**: Comprehensive dashboard
+- **Behavioral Insights**: Pattern analysis
+
+### 4. **Test Configuration System**
 
 #### Test Creation
 - Support for **MCQ** and **Theory** questions
@@ -212,10 +253,32 @@ Block 3 (Weight: 25%)
 #### User Management
 ```python
 User
-├── id, name, email, password
+├── id, username, email, password
 ├── role (student/teacher/admin)
+├── student_id (TY-4789 format)
+├── year_of_study (FY/SY/TY/LY)
+├── is_approved, approved_by
 ├── profile_data (JSON)
 └── created_at, updated_at
+
+PreRegisteredStudent
+├── student_id, year_of_study
+├── full_name, registered_by
+├── is_used, used_by
+└── created_at
+
+Subject
+├── name, code, teacher
+├── year_applicable, is_active
+├── archived_data (JSON)
+└── created_at
+
+EmbeddedAnalytics
+├── name, template_type
+├── teacher, embed_code
+├── embed_password, settings (JSON)
+├── is_active, last_updated
+└── created_at
 ```
 
 #### Room System
@@ -274,9 +337,20 @@ Analytics
 
 ### Authentication & Authorization
 - **Role-based access control** (Student/Teacher/Admin)
+- **Separate login pages** for students and teachers
+- **Student ID validation** (e.g., TY-4789 format)
+- **Pre-registration system** to prevent unauthorized access
+- **Teacher approval workflow** for new students
 - **Session management** with secure cookies
 - **Password encryption** with Django's built-in system
 - **CSRF protection** on all forms
+
+### Student Registration Control
+- **Pre-registered student IDs** managed by teachers
+- **Automatic denial** of non-listed student IDs
+- **Approval workflow** for exceptional cases
+- **Year-based ID formatting** (FY, SY, TY, LY)
+- **Duplicate account prevention**
 
 ### Test Security
 - **Invite code verification** for room entry
@@ -443,7 +517,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Team
 
-- **Project Lead**: MiHiR 
+- **Project Lead**: [MiHiR](https://github.com/mihir0209) 
 - **Backend Developer**: Also MiHiR
 - **Frontend Developer**: Yupp, MiHiR again
 - **Data Scientist**: Okay, kidding!! MiHiR again.

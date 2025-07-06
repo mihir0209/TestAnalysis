@@ -82,14 +82,19 @@ The Student Evaluation System is a Django-based web application that provides ad
 **Notes**: All core models created with proper relationships and admin interface
 
 #### Task 1.5: Room Management Basics
+- [x] Create enhanced authentication system
+- [x] Implement student ID validation system
+- [x] Create pre-registration models
+- [x] Setup embedded analytics framework
 - [ ] Create room creation form
 - [ ] Implement invite code generation
 - [ ] Create room joining functionality
 - [ ] Setup basic room views
 - [ ] Create room management templates
-**Status**: ❌ Not Started
+**Status**: 🔄 In Progress
 **Priority**: Medium
 **Dependencies**: Task 1.4
+**Notes**: Enhanced with student ID system and embedded analytics models
 
 ### Phase 2: Core Functionality ⏳ PENDING
 **Status**: 🔒 Locked (Unlock after Phase 1)
@@ -135,15 +140,25 @@ The Student Evaluation System is a Django-based web application that provides ad
 **Priority**: High
 **Dependencies**: Task 2.3
 
-#### Task 2.5: Room Entry Management
-- [ ] Implement late entry system
-- [ ] Create teacher approval interface
-- [ ] Add penalty system
-- [ ] Setup entry deadline management
-- [ ] Create room status tracking
+#### Task 2.6: Enhanced Authentication Features
+- [ ] Create separate login pages for students and teachers
+- [ ] Implement student ID validation on registration
+- [ ] Create pre-registration management interface
+- [ ] Setup student approval workflow
+- [ ] Create role-specific dashboards
+**Status**: ❌ Not Started
+**Priority**: High
+**Dependencies**: Task 2.5
+
+#### Task 2.7: Embedded Analytics System
+- [ ] Create embeddable widget templates
+- [ ] Implement embed authentication
+- [ ] Create analytics widget generator
+- [ ] Setup auto-updating embed system
+- [ ] Create integration documentation
 **Status**: ❌ Not Started
 **Priority**: Medium
-**Dependencies**: Task 2.4
+**Dependencies**: Task 2.6
 
 ### Phase 3: Behavioral Tracking ⏳ PENDING
 **Status**: 🔒 Locked (Unlock after Phase 2)
@@ -421,16 +436,16 @@ The Student Evaluation System is a Django-based web application that provides ad
 ## 📈 Progress Monitoring
 
 ### Current Status Summary
-- **Total Tasks**: 30
+- **Total Tasks**: 32
 - **Completed**: 4
 - **In Progress**: 1
-- **Not Started**: 25
-- **Overall Progress**: 13%
+- **Not Started**: 27
+- **Overall Progress**: 12.5%
 
 ### Phase Completion Tracking
 ```
 Phase 1: Foundation          [████▱] 80%
-Phase 2: Core Functionality  [▱▱▱▱▱] 0%
+Phase 2: Core Functionality  [▱▱▱▱▱▱▱] 0%
 Phase 3: Behavioral Tracking [▱▱▱▱▱] 0%
 Phase 4: Analytics Engine    [▱▱▱▱▱] 0%
 Phase 5: Dashboard & Report  [▱▱▱▱▱] 0%

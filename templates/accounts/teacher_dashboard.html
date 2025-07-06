@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-tachometer-alt me-2"></i>Teacher Dashboard
+                </h2>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'create_room' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Room
+                    </a>
+                    <a href="{% url 'create_test' %}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Create Test
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                            <h4 class="card-title">{{ total_rooms|default:0 }}</h4>
+                            <p class="card-text">Total Rooms</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-clipboard-list fa-2x text-success mb-2"></i>
+                            <h4 class="card-title">{{ total_tests|default:0 }}</h4>
+                            <p class="card-text">Total Tests</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-user-graduate fa-2x text-info mb-2"></i>
+                            <h4 class="card-title">{{ total_students|default:0 }}</h4>
+                            <p class="card-text">Total Students</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                            <h4 class="card-title">{{ total_responses|default:0 }}</h4>
+                            <p class="card-text">Total Responses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-door-open me-2"></i>Recent Rooms
+                            </h5>
+                            <a href="{% url 'room_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_rooms %}
+                                <div class="list-group list-group-flush">
+                                    {% for room in recent_rooms %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ room.name }}</h6>
+                                                <small class="text-muted">
+                                                    {{ room.current_students_count }}/{{ room.max_students }} students
+                                                </small>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                {% if room.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                                <a href="{% url 'room_detail' room.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-3">
+                                    <i class="fas fa-door-closed fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted">No rooms created yet</p>
+                                    <a href="{% url 'create_room' %}" class="btn btn-sm btn-primary">Create Your First Room</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-clipboard-list me-2"></i>Recent Tests
+                            </h5>
+                            <a href="{% url 'test_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_tests %}
+                                <div class="list-group list-group-flush">
+                                    {% for test in recent_tests %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ test.title }}</h6>
+                                                <small class="text-muted">
+                                                    {{ test.questions_count }} questions, {{ test.total_time }} min
+                                                </small>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                {% if test.room %}
+                                                    <span class="badge bg-info">Linked</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">No Room</span>
+                                                {% endif %}
+                                                <a href="{% url 'test_detail' test.id %}" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-3">
+                                    <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted">No tests created yet</p>
+                                    <a href="{% url 'create_test' %}" class="btn btn-sm btn-success">Create Your First Test</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Management Tools -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-cogs me-2"></i>Management Tools
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card border-primary">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                                            <h5 class="card-title">Pre-register Students</h5>
+                                            <p class="card-text">Add students to the system before they register</p>
+                                            <a href="{% url 'pre_register_students' %}" class="btn btn-primary">
+                                                <i class="fas fa-user-plus me-1"></i>Manage
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-success">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-book fa-3x text-success mb-3"></i>
+                                            <h5 class="card-title">Manage Subjects</h5>
+                                            <p class="card-text">Create and manage subjects for your courses</p>
+                                            <a href="{% url 'manage_subjects' %}" class="btn btn-success">
+                                                <i class="fas fa-book me-1"></i>Manage
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-info">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
+                                            <h5 class="card-title">Analytics</h5>
+                                            <p class="card-text">View detailed analytics and reports</p>
+                                            <a href="{% url 'analytics_dashboard' %}" class="btn btn-info">
+                                                <i class="fas fa-chart-bar me-1"></i>View
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - Student Evaluation System{% endblock %}
+
+{% block body_class %}student-theme{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-1">
+                                <i class="fas fa-user-graduate me-2"></i>
+                                Welcome, {{ user.get_full_name|default:user.username }}!
+                            </h2>
+                            <p class="mb-0 opacity-75">
+                                Student ID: {{ user.student_id }} | Year: {{ user.get_year_of_study_display }}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{% url 'join_room_by_code' %}" class="btn btn-light">
+                                    <i class="fas fa-key me-1"></i>Join Room
+                                </a>
+                                <a href="{% url 'room_list' %}" class="btn btn-outline-light">
+                                    <i class="fas fa-door-open me-1"></i>My Rooms
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-door-open text-success mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-success">{{ total_rooms|default:0 }}</h4>
+                    <p class="text-muted mb-0">Rooms Joined</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-alt text-info mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-info">{{ total_tests|default:0 }}</h4>
+                    <p class="text-muted mb-0">Tests Available</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle text-primary mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-primary">{{ tests_taken|default:0 }}</h4>
+                    <p class="text-muted mb-0">Tests Taken</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line text-warning mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-warning">{{ average_score|default:0|floatformat:1 }}%</h4>
+                    <p class="text-muted mb-0">Average Score</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Available Tests -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Available Tests
+                    </h5>
+                    <a href="{% url 'room_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if available_tests %}
+                        <div class="list-group list-group-flush">
+                            {% for test in available_tests %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ test.title }}</h6>
+                                        <small class="text-muted">
+                                            {{ test.questions_count }} questions, {{ test.total_time }} minutes
+                                        </small>
+                                        <br>
+                                        <small class="text-info">
+                                            Room: {{ test.room.name }}
+                                        </small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        {% if test.id in taken_test_ids %}
+                                            <span class="badge bg-success">Completed</span>
+                                            <a href="{% url 'test_results' test.id %}" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pending</span>
+                                            <a href="{% url 'take_test' test.id %}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No tests available</p>
+                            <a href="{% url 'join_room_by_code' %}" class="btn btn-sm btn-success">Join a Room</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Joined Rooms -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-door-open me-2"></i>Joined Rooms
+                    </h5>
+                    <a href="{% url 'room_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if joined_rooms %}
+                        <div class="list-group list-group-flush">
+                            {% for room in joined_rooms %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ room.name }}</h6>
+                                        <small class="text-muted">
+                                            {{ room.current_students_count }} students
+                                        </small>
+                                        <br>
+                                        <small class="text-info">
+                                            Teacher: {{ room.teacher.get_full_name }}
+                                        </small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        {% if room.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                        <a href="{% url 'room_detail' room.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-door-closed fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No rooms joined yet</p>
+                            <a href="{% url 'join_room_by_code' %}" class="btn btn-sm btn-success">Join Your First Room</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="list-group list-group-flush">
+                            {% for activity in recent_activities %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="mb-1">{{ activity.description }}</p>
+                                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-history fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No recent activity</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock text-warning mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-warning">0m</h4>
+                    <p class="text-muted mb-0">Avg Time</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-trophy text-primary mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-primary">0</h4>
+                    <p class="text-muted mb-0">Achievements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Available Tests -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Available Tests
+                    </h5>
+                    <span class="badge bg-success">Coming in Phase 2</span>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-alt text-muted" style="font-size: 4rem;"></i>
+                        <h6 class="text-muted mt-3">No tests available yet</h6>
+                        <p class="text-muted">Tests will appear here when your teacher creates them.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" disabled>
+                            <i class="fas fa-play me-2"></i>Take Test
+                        </button>
+                        <button class="btn btn-outline-info" disabled>
+                            <i class="fas fa-chart-bar me-2"></i>View Analytics
+                        </button>
+                        <button class="btn btn-outline-warning" disabled>
+                            <i class="fas fa-history me-2"></i>Test History
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        Features will be available in upcoming phases.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Name:</strong> {{ user.get_full_name|default:"Not set" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Student ID:</strong> {{ user.student_id }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Year:</strong> {{ user.get_year_of_study_display|default:"Not set" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Email:</strong> {{ user.email|default:"Not set" }}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Status:</strong> 
+                        {% if user.is_approved %}
+                            <span class="badge bg-success">Approved</span>
+                        {% else %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-clock text-muted" style="font-size: 3rem;"></i>
+                        <h6 class="text-muted mt-3">No recent activity</h6>
+                        <p class="text-muted">Your test activities will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration - Student Evaluation System{% endblock %}
+
+{% block body_class %}student-theme{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Student Registration
+                    </h3>
+                </div>
+                <div class="card-body p-5">
+                    <form method="post" id="studentRegForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user me-2"></i>First Name
+                                </label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Last Name
+                                </label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.student_id.id_for_label }}" class="form-label">
+                                <i class="fas fa-id-card me-2"></i>Student ID
+                            </label>
+                            {{ form.student_id }}
+                            <div class="form-text">Format: YY-NNNN (e.g., TY-4789)</div>
+                            <div id="studentIdFeedback" class="mt-2"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="fas fa-at me-2"></i>Username
+                            </label>
+                            {{ form.username }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            {{ form.email }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            {{ form.password1 }}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Confirm Password
+                            </label>
+                            {{ form.password2 }}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="text-muted">Already have an account?</p>
+                        <a href="{% url 'student_login' %}" class="btn btn-outline-success">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'home' %}" class="text-muted">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info Card -->
+            <div class="card mt-4 border-success">
+                <div class="card-body">
+                    <h6 class="card-title text-success">
+                        <i class="fas fa-info-circle me-2"></i>Registration Requirements
+                    </h6>
+                    <ul class="text-muted small mb-0">
+                        <li>Your student ID must be pre-registered by your teacher</li>
+                        <li>Use the format YY-NNNN (e.g., TY-4789)</li>
+                        <li>Provide accurate information for verification</li>
+                        <li>Contact your teacher if your ID is not recognized</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+</style>
+
+<script>
+// Real-time student ID validation
+document.getElementById('id_student_id').addEventListener('blur', function() {
+    const studentId = this.value;
+    const feedback = document.getElementById('studentIdFeedback');
+    
+    if (studentId) {
+        fetch('{% url "check_student_id" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: 'student_id=' + encodeURIComponent(studentId)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.available) {
+                feedback.innerHTML = '<div class="alert alert-success alert-sm py-2"><i class="fas fa-check me-2"></i>Student ID is available!</div>';
+            } else {
+                feedback.innerHTML = '<div class="alert alert-danger alert-sm py-2"><i class="fas fa-times me-2"></i>Student ID not available or already used</div>';
+            }
+        })
+        .catch(error => {
+            feedback.innerHTML = '<div class="alert alert-warning alert-sm py-2"><i class="fas fa-exclamation-triangle me-2"></i>Unable to verify ID</div>';
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>{{ title }}
+                    </h3>
+                    <small class="text-muted">Test: {{ test.title }}</small>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="questionForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.question_text.id_for_label }}" class="form-label">
+                                <i class="fas fa-question me-1"></i>Question Text <span class="text-danger">*</span>
+                            </label>
+                            {{ form.question_text }}
+                            {% if form.question_text.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.question_text.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Enter the question that students will see
+                            </small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.question_type.id_for_label }}" class="form-label">
+                                        <i class="fas fa-list me-1"></i>Question Type <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.question_type }}
+                                    {% if form.question_type.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.question_type.errors|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.difficulty_level.id_for_label }}" class="form-label">
+                                        <i class="fas fa-chart-line me-1"></i>Difficulty Level
+                                    </label>
+                                    {{ form.difficulty_level }}
+                                    {% if form.difficulty_level.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.difficulty_level.errors|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- MCQ Options (shown only for MCQ) -->
+                        <div class="mb-3" id="mcqOptions" style="display: none;">
+                            <label for="{{ form.options.id_for_label }}" class="form-label">
+                                <i class="fas fa-check-circle me-1"></i>Options <span class="text-danger">*</span>
+                            </label>
+                            {{ form.options }}
+                            {% if form.options.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.options.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Enter each option on a new line (minimum 2 options)
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.correct_answer.id_for_label }}" class="form-label">
+                                <i class="fas fa-check me-1"></i>Correct Answer <span class="text-danger">*</span>
+                            </label>
+                            {{ form.correct_answer }}
+                            {% if form.correct_answer.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.correct_answer.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted" id="correctAnswerHelp">
+                                Enter the correct answer for this question
+                            </small>
+                        </div>
+                        
+                        <!-- Theory Question Settings -->
+                        <div id="theorySettings" style="display: none;">
+                            <div class="mb-3">
+                                <label for="{{ form.evaluation_type.id_for_label }}" class="form-label">
+                                    <i class="fas fa-cog me-1"></i>Evaluation Type
+                                </label>
+                                {{ form.evaluation_type }}
+                                {% if form.evaluation_type.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.evaluation_type.errors|first }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3" id="keywordSettings" style="display: none;">
+                                <label for="{{ form.keywords.id_for_label }}" class="form-label">
+                                    <i class="fas fa-tags me-1"></i>Keywords (JSON format)
+                                </label>
+                                {{ form.keywords }}
+                                {% if form.keywords.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.keywords.errors|first }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Example: {"keyword1": 0.5, "keyword2": 0.3, "keyword3": 0.2}
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3" id="thresholdSettings" style="display: none;">
+                                <label for="{{ form.keyword_threshold.id_for_label }}" class="form-label">
+                                    <i class="fas fa-percentage me-1"></i>Keyword Threshold
+                                </label>
+                                {{ form.keyword_threshold }}
+                                {% if form.keyword_threshold.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.keyword_threshold.errors|first }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Minimum score required to pass (0.0 to 1.0)
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.marks.id_for_label }}" class="form-label">
+                                <i class="fas fa-star me-1"></i>Marks <span class="text-danger">*</span>
+                            </label>
+                            {{ form.marks }}
+                            {% if form.marks.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.marks.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Points awarded for correct answer
+                            </small>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'test_detail' test.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Test
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Add Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Help section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Question Creation Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Multiple Choice Questions</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-1">• Enter each option on a new line</li>
+                                <li class="mb-1">• Minimum 2 options required</li>
+                                <li class="mb-1">• Correct answer should match one option exactly</li>
+                                <li class="mb-1">• Evaluation is always exact match</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-edit text-primary me-2"></i>Theory Questions</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-1">• Use exact match for simple answers</li>
+                                <li class="mb-1">• Use keyword-based for complex answers</li>
+                                <li class="mb-1">• Keywords format: {"word": weight}</li>
+                                <li class="mb-1">• Weights should add up to 1.0</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionType = document.getElementById('{{ form.question_type.id_for_label }}');
+    const evaluationType = document.getElementById('{{ form.evaluation_type.id_for_label }}');
+    const mcqOptions = document.getElementById('mcqOptions');
+    const theorySettings = document.getElementById('theorySettings');
+    const keywordSettings = document.getElementById('keywordSettings');
+    const thresholdSettings = document.getElementById('thresholdSettings');
+    const correctAnswerHelp = document.getElementById('correctAnswerHelp');
+    
+    function updateFormFields() {
+        const qType = questionType.value;
+        const eType = evaluationType.value;
+        
+        // Show/hide MCQ options
+        if (qType === 'mcq') {
+            mcqOptions.style.display = 'block';
+            theorySettings.style.display = 'none';
+            correctAnswerHelp.textContent = 'Enter the correct answer (should match one of the options above)';
+        } else {
+            mcqOptions.style.display = 'none';
+            theorySettings.style.display = 'block';
+            correctAnswerHelp.textContent = 'Enter the ideal answer for this theory question';
+        }
+        
+        // Show/hide keyword settings for theory questions
+        if (qType === 'theory' && eType === 'keyword') {
+            keywordSettings.style.display = 'block';
+            thresholdSettings.style.display = 'block';
+        } else {
+            keywordSettings.style.display = 'none';
+            thresholdSettings.style.display = 'none';
+        }
+    }
+    
+    // Initial setup
+    updateFormFields();
+    
+    // Event listeners
+    questionType.addEventListener('change', updateFormFields);
+    evaluationType.addEventListener('change', updateFormFields);
+});
+</script>
+{% endblock %}

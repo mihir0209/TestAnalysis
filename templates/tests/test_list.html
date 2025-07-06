@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tests{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-clipboard-list me-2"></i>My Tests
+                </h2>
+                <a href="{% url 'create_test' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Test
+                </a>
+            </div>
+
+            {% if tests %}
+                <div class="row">
+                    {% for test in tests %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">{{ test.title }}</h5>
+                                    <span class="badge bg-info">{{ test.get_analytics_mode_display }}</span>
+                                </div>
+                                <div class="card-body">
+                                    {% if test.description %}
+                                        <p class="card-text">{{ test.description|truncatewords:15 }}</p>
+                                    {% endif %}
+                                    
+                                    <div class="test-info">
+                                        <div class="row text-center mb-3">
+                                            <div class="col-4">
+                                                <div class="border rounded p-2">
+                                                    <h6 class="text-primary mb-0">{{ test.questions_count }}</h6>
+                                                    <small class="text-muted">Questions</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="border rounded p-2">
+                                                    <h6 class="text-success mb-0">{{ test.total_time }}</h6>
+                                                    <small class="text-muted">Minutes</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="border rounded p-2">
+                                                    {% if test.room %}
+                                                        <h6 class="text-info mb-0">
+                                                            <i class="fas fa-link"></i>
+                                                        </h6>
+                                                        <small class="text-muted">Linked</small>
+                                                    {% else %}
+                                                        <h6 class="text-warning mb-0">
+                                                            <i class="fas fa-unlink"></i>
+                                                        </h6>
+                                                        <small class="text-muted">No Room</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if test.room %}
+                                            <div class="mb-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-door-open me-1"></i>
+                                                    Room: <strong>{{ test.room.name }}</strong>
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Created: {{ test.created_at|date:"M d, Y" }}
+                                            </small>
+                                        </div>
+                                        
+                                        {% if test.can_pause %}
+                                            <div class="mb-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-pause me-1"></i>
+                                                    Pausable
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'test_detail' test.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                        
+                                        <div class="btn-group">
+                                            <a href="{% url 'add_question' test.id %}" class="btn btn-outline-success btn-sm">
+                                                <i class="fas fa-plus me-1"></i>Add Q
+                                            </a>
+                                            {% if test.room %}
+                                                <a href="{% url 'room_detail' test.room.id %}" class="btn btn-outline-info btn-sm">
+                                                    <i class="fas fa-door-open me-1"></i>Room
+                                                </a>
+                                            {% endif %}
+                                            <a href="{% url 'test_results' test.id %}" class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-chart-bar me-1"></i>Results
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if tests.has_other_pages %}
+                    <nav aria-label="Test pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if tests.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ tests.previous_page_number }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in tests.paginator.page_range %}
+                                {% if tests.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > tests.number|add:'-3' and num < tests.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if tests.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ tests.next_page_number }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                    <h4>No tests found</h4>
+                    <p class="text-muted">You haven't created any tests yet.</p>
+                    <a href="{% url 'create_test' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Your First Test
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.test-info {
+    font-size: 0.9em;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.border {
+    border: 1px solid #dee2e6;
+}
+
+.border.rounded {
+    border-radius: 0.375rem;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+</style>
+{% endblock %}

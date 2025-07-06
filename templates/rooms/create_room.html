@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>{{ title }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                <i class="fas fa-tag me-1"></i>Room Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.name.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Give your room a descriptive name that students will recognize
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.description.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Optional description about the room's purpose
+                            </small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.entry_deadline.id_for_label }}" class="form-label">
+                                        <i class="fas fa-clock me-1"></i>Entry Deadline <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.entry_deadline }}
+                                    {% if form.entry_deadline.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.entry_deadline.errors|first }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Students cannot join after this deadline
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.max_students.id_for_label }}" class="form-label">
+                                        <i class="fas fa-users me-1"></i>Maximum Students <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.max_students }}
+                                    {% if form.max_students.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.max_students.errors|first }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Maximum number of students allowed in this room
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.late_penalty.id_for_label }}" class="form-label">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Late Entry Penalty
+                            </label>
+                            {{ form.late_penalty }}
+                            {% if form.late_penalty.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.late_penalty.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Penalty multiplier for students who join late (0.0 to 1.0)
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.settings.id_for_label }}" class="form-label">
+                                <i class="fas fa-cog me-1"></i>Advanced Settings
+                            </label>
+                            {{ form.settings }}
+                            {% if form.settings.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.settings.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Additional settings in JSON format (optional)
+                            </small>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'room_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Create Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Help section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Room Creation Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            <strong>Invite Code:</strong> A unique code will be automatically generated for students to join
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            <strong>Entry Deadline:</strong> Set this to when you want to start the test
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            <strong>Late Penalty:</strong> 0.1 means 10% penalty for late joiners
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            <strong>Advanced Settings:</strong> Use JSON format like: {"allow_late_entry": true}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

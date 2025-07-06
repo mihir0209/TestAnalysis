@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if user.role == 'teacher' %}
+        My Rooms
+    {% else %}
+        Joined Rooms
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    {% if user.role == 'teacher' %}
+                        <i class="fas fa-users me-2"></i>My Rooms
+                    {% else %}
+                        <i class="fas fa-door-open me-2"></i>Joined Rooms
+                    {% endif %}
+                </h2>
+                <div class="d-flex gap-2">
+                    {% if user.role == 'teacher' %}
+                        <a href="{% url 'create_room' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Room
+                        </a>
+                    {% else %}
+                        <a href="{% url 'join_room_by_code' %}" class="btn btn-success">
+                            <i class="fas fa-key me-2"></i>Join Room
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if rooms %}
+                <div class="row">
+                    {% for room in rooms %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">{{ room.name }}</h5>
+                                    {% if room.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    {% if room.description %}
+                                        <p class="card-text">{{ room.description|truncatewords:20 }}</p>
+                                    {% endif %}
+                                    
+                                    <div class="room-info">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-users me-1"></i>
+                                                {{ room.current_students_count }}/{{ room.max_students }} students
+                                            </small>
+                                            {% if room.is_full %}
+                                                <span class="badge bg-warning">Full</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Deadline: {{ room.entry_deadline|date:"M d, Y H:i" }}
+                                            </small>
+                                        </div>
+                                        
+                                        {% if user.role == 'teacher' %}
+                                            <div class="mb-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-key me-1"></i>
+                                                    Code: <strong>{{ room.invite_code }}</strong>
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if room.test %}
+                                            <div class="mb-2">
+                                                <small class="text-success">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Test: {{ room.test.title }}
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{% url 'room_detail' room.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                        
+                                        {% if user.role == 'teacher' %}
+                                            <div class="btn-group">
+                                                <a href="{% url 'edit_room' room.id %}" class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </a>
+                                                {% if room.test %}
+                                                    <a href="{% url 'test_detail' room.test.id %}" class="btn btn-outline-info btn-sm">
+                                                        <i class="fas fa-clipboard-list me-1"></i>Test
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{% url 'create_test' %}?room={{ room.id }}" class="btn btn-outline-success btn-sm">
+                                                        <i class="fas fa-plus me-1"></i>Add Test
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if rooms.has_other_pages %}
+                    <nav aria-label="Room pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if rooms.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ rooms.previous_page_number }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in rooms.paginator.page_range %}
+                                {% if rooms.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > rooms.number|add:'-3' and num < rooms.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if rooms.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ rooms.next_page_number }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-door-closed fa-3x text-muted mb-3"></i>
+                    <h4>No rooms found</h4>
+                    <p class="text-muted">
+                        {% if user.role == 'teacher' %}
+                            You haven't created any rooms yet.
+                        {% else %}
+                            You haven't joined any rooms yet.
+                        {% endif %}
+                    </p>
+                    {% if user.role == 'teacher' %}
+                        <a href="{% url 'create_room' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Your First Room
+                        </a>
+                    {% else %}
+                        <a href="{% url 'join_room_by_code' %}" class="btn btn-success">
+                            <i class="fas fa-key me-2"></i>Join a Room
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.room-info {
+    font-size: 0.9em;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+</style>
+{% endblock %}

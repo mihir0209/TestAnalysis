@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ test.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Test Header -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-clipboard-list me-2"></i>{{ test.title }}
+                        </h3>
+                        <small class="text-muted">
+                            Created by {{ test.created_by.first_name }} {{ test.created_by.last_name }}
+                        </small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-info fs-6">{{ test.get_analytics_mode_display }}</span>
+                        {% if test.can_pause %}
+                            <span class="badge bg-success fs-6">Pausable</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            {% if test.description %}
+                                <p class="card-text">{{ test.description }}</p>
+                            {% endif %}
+                            
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-primary mb-0">{{ total_questions }}</h4>
+                                        <small class="text-muted">Total Questions</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-success mb-0">{{ test.total_time }}</h4>
+                                        <small class="text-muted">Minutes</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-warning mb-0">{{ total_marks|floatformat:1 }}</h4>
+                                        <small class="text-muted">Total Marks</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-info mb-0">{{ avg_marks|floatformat:1 }}</h4>
+                                        <small class="text-muted">Avg Marks/Q</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {% if test.room %}
+                                <div class="card border-info">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="fas fa-door-open me-2"></i>Linked Room
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="text-info">{{ test.room.name }}</h5>
+                                        <p class="mb-1">{{ test.room.current_students_count }} students</p>
+                                        <a href="{% url 'room_detail' test.room.id %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-external-link-alt me-1"></i>View Room
+                                        </a>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>No room linked</strong><br>
+                                    This test is not linked to any room.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test Statistics (for teachers) -->
+            {% if user.role == 'teacher' and response_stats %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Test Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <h4 class="text-primary mb-0">{{ response_stats.total_responses }}</h4>
+                                    <small class="text-muted">Total Responses</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <h4 class="text-success mb-0">{{ response_stats.unique_students }}</h4>
+                                    <small class="text-muted">Students Participated</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <h4 class="text-warning mb-0">{{ response_stats.avg_score|floatformat:1 }}%</h4>
+                                    <small class="text-muted">Average Score</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Test Actions -->
+            {% if user.role == 'teacher' %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog me-2"></i>Test Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{% url 'add_question' test.id %}" class="btn btn-outline-success">
+                                <i class="fas fa-plus me-1"></i>Add Question
+                            </a>
+                            <a href="{% url 'test_results' test.id %}" class="btn btn-outline-primary">
+                                <i class="fas fa-chart-line me-1"></i>View Results
+                            </a>
+                            {% if test.room %}
+                                <a href="{% url 'room_detail' test.room.id %}" class="btn btn-outline-info">
+                                    <i class="fas fa-door-open me-1"></i>View Room
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Questions List -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Questions ({{ total_questions }})
+                    </h5>
+                    {% if user.role == 'teacher' %}
+                        <a href="{% url 'add_question' test.id %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus me-1"></i>Add Question
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if questions %}
+                        <div class="accordion" id="questionsAccordion">
+                            {% for question in questions %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{ question.id }}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ question.id }}">
+                                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                                <div>
+                                                    <strong>Q{{ forloop.counter }}:</strong> 
+                                                    {{ question.question_text|truncatewords:15 }}
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <span class="badge bg-secondary">{{ question.get_question_type_display }}</span>
+                                                    <span class="badge bg-info">{{ question.marks }} marks</span>
+                                                    <span class="badge bg-success">{{ question.difficulty_level|title }}</span>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ question.id }}" class="accordion-collapse collapse" data-bs-parent="#questionsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <h6>Question:</h6>
+                                                    <p>{{ question.question_text }}</p>
+                                                    
+                                                    {% if question.question_type == 'mcq' and question.options %}
+                                                        <h6>Options:</h6>
+                                                        <ul>
+                                                            {% for option in question.options %}
+                                                                <li>{{ option }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% endif %}
+                                                    
+                                                    <h6>Correct Answer:</h6>
+                                                    <p class="text-success">{{ question.correct_answer }}</p>
+                                                    
+                                                    {% if question.question_type == 'theory' and question.keywords %}
+                                                        <h6>Keywords:</h6>
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            {% for keyword, weight in question.keywords.items %}
+                                                                <span class="badge bg-outline-primary">{{ keyword }} ({{ weight }})</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="card border-light">
+                                                        <div class="card-body">
+                                                            <h6>Question Details:</h6>
+                                                            <p class="mb-1"><strong>Type:</strong> {{ question.get_question_type_display }}</p>
+                                                            <p class="mb-1"><strong>Marks:</strong> {{ question.marks }}</p>
+                                                            <p class="mb-1"><strong>Difficulty:</strong> {{ question.difficulty_level|title }}</p>
+                                                            {% if question.question_type == 'theory' %}
+                                                                <p class="mb-1"><strong>Evaluation:</strong> {{ question.get_evaluation_type_display }}</p>
+                                                                {% if question.evaluation_type == 'keyword' %}
+                                                                    <p class="mb-1"><strong>Threshold:</strong> {{ question.keyword_threshold }}</p>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {% if user.role == 'teacher' %}
+                                                        <div class="mt-3 d-flex gap-2">
+                                                            <a href="{% url 'edit_question' test.id question.id %}" class="btn btn-outline-primary btn-sm">
+                                                                <i class="fas fa-edit me-1"></i>Edit
+                                                            </a>
+                                                            <a href="{% url 'delete_question' test.id question.id %}" class="btn btn-outline-danger btn-sm">
+                                                                <i class="fas fa-trash me-1"></i>Delete
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                            <h5>No questions yet</h5>
+                            <p class="text-muted">This test doesn't have any questions yet.</p>
+                            {% if user.role == 'teacher' %}
+                                <a href="{% url 'add_question' test.id %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Add Your First Question
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border {
+    border: 1px solid #dee2e6;
+}
+
+.border.rounded {
+    border-radius: 0.375rem;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #0d6efd;
+    background-color: #e7f1ff;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.accordion-body {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Room - {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>{{ title }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                <i class="fas fa-tag me-1"></i>Room Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.name.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.description.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.entry_deadline.id_for_label }}" class="form-label">
+                                        <i class="fas fa-clock me-1"></i>Entry Deadline <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.entry_deadline }}
+                                    {% if form.entry_deadline.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.entry_deadline.errors|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.max_students.id_for_label }}" class="form-label">
+                                        <i class="fas fa-users me-1"></i>Maximum Students <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.max_students }}
+                                    {% if form.max_students.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.max_students.errors|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.late_penalty.id_for_label }}" class="form-label">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Late Entry Penalty
+                            </label>
+                            {{ form.late_penalty }}
+                            {% if form.late_penalty.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.late_penalty.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    <i class="fas fa-toggle-on me-1"></i>Room is Active
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.is_active.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'room_detail' room.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Update Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Room Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Room Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Invite Code:</strong> {{ room.invite_code }}</p>
+                            <p><strong>Created:</strong> {{ room.created_at|date:"M d, Y H:i" }}</p>
+                            <p><strong>Current Students:</strong> {{ room.current_students_count }}/{{ room.max_students }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong> 
+                                {% if room.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Test Linked:</strong> 
+                                {% if room.test %}
+                                    <span class="badge bg-info">{{ room.test.title }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning">No Test</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
